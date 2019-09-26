@@ -44,8 +44,14 @@
 ###
 
 
+#
+# Get full dir for starting path
 DIR=`dirname $0`
+cd ${DIR}
+DIR=`pwd`
 . ${DIR}/sshrsync.config
+BASE=`basename $0`
+PROGRAM="${DIR}/${BASE}"
 
 #
 # Detect SD name and internal only support
@@ -231,9 +237,9 @@ ${SCP} ${SSHUSER}:${REMOTE_PATH}/rsync.exclude /data/rsync.exclude
 
 # 
 #
-# First back myself and excludes up:
-echo ${SCP} ${0} /data/rsync.exclude ${SSHUSER}:${REMOTE_PATH}
-${SCP} ${0} /data/rsync.exclude ${SSHUSER}:${REMOTE_PATH}
+# First back myself, the config, and excludes up:
+echo ${SCP} ${PROGRAM} /data/rsync.exclude ${DIR}/sshrsync.config ${SSHUSER}:${REMOTE_PATH}
+${SCP} ${PROGRAM} /data/rsync.exclude ${DIR}/sshrsync.config ${SSHUSER}:${REMOTE_PATH}
 
 # Mark the "start" time
 /system/bin/date > /sdcard/start

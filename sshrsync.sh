@@ -305,10 +305,8 @@ while [ ${RC} -ne 0 ] ; do
 done
 #
 # 
-if [ "${RW}" = "0" ] ; then
 # hardlink files.
-   ${SSH} ${SSHUSER} ${REMOTE_PATH}/hardlink.sh ${REMOTE_PATH} ${DATE}
-fi
+${SSH} ${SSHUSER} ${REMOTE_PATH}/hardlink.sh ${REMOTE_PATH} ${DATE}
 
 ### Send last backup...
 /system/bin/date > /sdcard/last

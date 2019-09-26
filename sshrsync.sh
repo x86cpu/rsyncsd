@@ -184,14 +184,22 @@ fi
 
 ## Get DNS
 DNS=`getprop net.dns1`
-PINGIP="${DNS}"
-REMOTEIP=`${BUSYBOX} nslookup ${REMOTE_HOST} ${DNS} | ${BUSYBOX} tail -1  | ${BUSYBOX} awk '{printf $3}'`
+if [ "${REMOTE_IP}" = "" ] ; then
+   REMOTEIP=`${BUSYBOX} nslookup ${REMOTE_HOST} ${DNS} | ${BUSYBOX} tail -1  | ${BUSYBOX} awk '{printf $3}'`
+else
+   REMOTEIP=${REMOTE_IP}
+fi
 
 #
 ### Remote IP (ping work by IP only)
 
-/system/bin/ping -c 1 ${PINGIP}
+${BUSYBOX} ping -c 1 ${REMOTEIP}
 RC=$?
+if [ ${RC} -eq 1 ] ; then
+ # Failed to ping remote host, try the DNS
+   ${BUSYBOX} ping -c 1 ${DNS}
+   RC=$?
+fi
 
 #
 # Checks return code, if server is down it will not sync (in case you are not home at that time)
@@ -249,19 +257,24 @@ DOW=`/system/bin/date +%a`
 mkdir -p /${SD}/s3/BU/${DOW}
 cp /data/misc/wifi/WifiConfigStore.xml /data/misc/wifi/wpa_supplicant.conf /data/misc/bluedroid/bt_config.conf /${SD}/${BUDIR}/${DOW}
 
-## Ok....need to loop here if the Return Code on RSYNC is 127 (network intruppted), however sleep for 30 seconds before trying again
+# Ok....need to loop here if the Return Code on RSYNC is 127 (network intruppted), however sleep for 30 seconds before trying again
 
 RC=127
 
 while [ ${RC} -ne 0 ] ; do
 ## Ping again here
-   /system/bin/ping -c 1 ${PINGIP}
+   ${BUSYBOX} ping -c 1 ${REMOTEIP}
    RC=$?
+   if [ ${RC} -eq 1 ] ; then
+     # Failed to ping remote host, try the DNS
+      ${BUSYBOX} ping -c 1 ${DNS}
+      RC=$?
+   fi
 
 ### Checks return code, if server is down it will not sync (in case you are not home at that time)
 # Lost net if we cannot pig
    if [ ${RC} -eq 1 ] ; then
-      echo "ERROR: Failed to ping remote host, exiting...."
+      echo "ERROR: Failed to ping remote host/dns, exiting...."
       exit 255
    fi
 # Ok to go, rsync away

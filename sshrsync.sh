@@ -43,30 +43,9 @@
 #
 ###
 
-####### EDIT HERE ######
-# Remote user to login as
-REMOTE_USER="etmsys"
-#
-# Host we login to
-REMOTE_HOST="cpu.rit.edu"
-#
-# Remote path relative to once logged in
-REMOTE_PATH="V20/eric"
-#
-# rsync path on other end
-REMOTE_RSYNC=/usr/bin/rsync
-#
-# Backup direcotory relative to SD card (or internal SD)
-BUDIR="v20/BU"
-#
-# Inital HOST IP to get missing data.
-INIT_HOST="129.21.6.66"
 
-# Set to 1 for interal SD only, ie.. No SD card support
-INTERNAL=0
-####### END EDIT HERE ######
-### CHANGING PAST THIS COULD RESULT IN ERRORS #####
-
+DIR=`dirname $0`
+. ${DIR}/sshrsync.config
 
 #
 # Detect SD name and internal only support

@@ -1,0 +1,20 @@
+# Common excludes
+DCIM/.thumbnails
+cache/
+.cache/
+reader/.images
+self/primary/Android/data/com.amazon.venezia/files/apks
+self/primary/Android/data/com.sec.android.gallery3d/cache
+self/primary/Android/data/com.amazon.venezia/files/apks
+self/primary/.rhmsoftfm/thumbnails
+self/primary/.elementalx.backup
+self/primary/Android/data/com.dropbox.android/files/*/scratch
+self/primary/kernel_backup
+self/primary/liverepack.log
+# Common external SD excludes .. wildcard the SD name as ????-????
+????-????/TWRP
+????-????/.android_secure
+????-????/Android/data/com.amazon.venezia/files/apks
+????-????/Android/data/com.sec.android.gallery3d/cache
+????-????/clockworkmod/backup
+????-????/Android/data/com.google.android.apps.magazines/files

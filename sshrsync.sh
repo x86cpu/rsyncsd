@@ -139,14 +139,16 @@ if [ ! -f "/data/.ssh/KEY" ] ; then
    mkdir -p /data/.ssh
    FILES="KEY KEY.pub known_hosts"
    for FILE in ${FILES} ; do
+      if [ -f "/${SD}/${BUDIR}/.ssh/${FILE}" ] ; then
+         cp /${SD}/${BUDIR}/.ssh/${FILE} /data/.ssh/
+         chmod 600 /data/.ssh/${FILE}
+      else
+         echo "Missing ${FILE}"
+         if [ "${FILE}" != "known_hosts" ] ; then
+            ERROR=1
+         fi
+      fi
    done
-   if [ -f "/${SD}/${BUDIR}/.ssh/${FILE}" ] ; then
-      cp /${SD}/${BUDIR}/.ssh/${FILE} /data/.ssh/
-      chmod 600 /data/.ssh/${FILE}
-   else
-      echo "Missing ${FILE}"
-      ERROR=1
-   fi
 fi
 if [ "${ERROR}" = "1" ] ; then
    exit 1

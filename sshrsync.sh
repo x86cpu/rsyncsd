@@ -117,16 +117,15 @@ if [ "${USB}" -eq 0 -a "${CAP}" -ne 100 -a "$1" == "" ] ; then
    echo " "
    exit 25
 fi
-
-if [ -x "/system/bin/scp" ] ; then
-   SCP="/system/bin/scp"
+if [ -x "${SCP}" ] ; then
+   echo "Found SCP: ${SCP}"
 else
    echo "Missing SCP!!"
    exit 0
 fi
 
-if [ -x "/system/bin/ssh" ] ; then
-   SSH="/system/bin/ssh"
+if [ -x "${SSH}" ] ; then
+   echo "Found SSH: ${SSH}"
 else
    echo "Missing SSH!!"
    exit 0
@@ -144,9 +143,7 @@ if [ ! -f "/data/.ssh/KEY" ] ; then
          chmod 600 /data/.ssh/${FILE}
       else
          echo "Missing ${FILE}"
-         if [ "${FILE}" != "known_hosts" ] ; then
-            ERROR=1
-         fi
+         ERROR=1
       fi
    done
 fi
@@ -192,10 +189,13 @@ fi
 
 ## Get DNS
 DNS=`getprop net.dns1`
-if [ "${REMOTE_IP}" = "" ] ; then
-   REMOTEIP=`${BUSYBOX} nslookup ${REMOTE_HOST} ${DNS} | ${BUSYBOX} tail -1  | ${BUSYBOX} awk '{printf $3}'`
-else
+if [ "${REMOTE_IP}" != "" ] ; then
    REMOTEIP=${REMOTE_IP}
+elif [ "${DNS}" = "" ] ; then
+   REMOTEIP=`${BUSYBOX} nslookup ${REMOTE_HOST} | ${BUSYBOX} tail -1  | ${BUSYBOX} awk '{printf $3}'`
+   DNS=`${BUSYBOX} nslookup ${REMOTE_HOST} | ${BUSYBOX} grep Server | ${BUSYBOX} head -1  | ${BUSYBOX} awk '{printf $2}'`
+else
+   REMOTEIP=`${BUSYBOX} nslookup ${REMOTE_HOST} ${DNS} | ${BUSYBOX} tail -1  | ${BUSYBOX} awk '{printf $3}'`
 fi
 
 #
@@ -263,7 +263,11 @@ OPTIONS="${OPTIONS} --ignore-errors "
 DATE=`/system/bin/date '+%m-%d-%Y'`
 DOW=`/system/bin/date +%a`
 mkdir -p /${SD}/s3/BU/${DOW}
-cp /data/misc/wifi/WifiConfigStore.xml /data/misc/wifi/wpa_supplicant.conf /data/misc/bluedroid/bt_config.conf /${SD}/${BUDIR}/${DOW}
+cp /data/misc/wifi/WifiConfigStore.xml /${SD}/${BUDIR}/${DOW}/ 
+cp /data/misc/wifi/wpa_supplicant.conf /${SD}/${BUDIR}/${DOW}/
+cp /data/misc/bluedroid/bt_config.conf /${SD}/${BUDIR}/${DOW}/
+cp /data/misc/apexdata/com.android.wifi/WifiConfigStore.xml /${SD}/${BUDIR}/${DOW}/
+cp /data/misc/apexdata/com.android.wifi/WifiConfigStoreSoftAp.xml /${SD}/${BUDIR}/${DOW}/
 
 # Ok....need to loop here if the Return Code on RSYNC is 127 (network intruppted), however sleep for 30 seconds before trying again
 
@@ -314,7 +318,9 @@ done
 #
 # 
 # hardlink files.
-${SSH} ${SSHUSER} ${REMOTE_PATH}/hardlink.sh ${REMOTE_PATH} ${DATE}
+if [ "${POST_SCRIPT}" != "" ] ; then
+   ${SSH} ${SSHUSER} ${REMOTE_PATH}/${POST_SCRIPT} ${REMOTE_PATH} ${DATE}
+fi
 
 ### Send last backup...
 /system/bin/date > /sdcard/last

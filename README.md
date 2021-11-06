@@ -5,7 +5,7 @@ Rsync Android internal/extermnal storage via SSH
 * root - Needed for script to run
 * ssh/scp - Either via Magisk module or built-in (ex: Lineage)
 * ssh-keygen - Only needed to setup keys.
-* Some *cron-like* program to run the script:
+* Some *cron-like* program to run the script (tested against):
    * https://play.google.com/store/apps/details?id=os.tools.scriptmanager
    * https://play.google.com/store/apps/details?id=os.tools.scriptmanagerpro
 
@@ -16,6 +16,7 @@ Rsync Android internal/extermnal storage via SSH
 * sshrsync.sh - The main script that processes it all
 * sshrsync.config - Configuration items to change (you should only need to change this file)
 * hardlink.sh - A script that will create hardlinked backups for your **storage** directory dated (does not cleanup), do not install if you don't want this.
+* x86cpu-ssh-client-1.00.zip - A Magisk module that will provide ssh/scp/ssh-keygen binaries
  
  ## Install
 * Change the **REMOTE_** varibles in the *sshrsync.config* for your envionment ( see [Config](#config) )
@@ -67,9 +68,13 @@ Rsync Android internal/extermnal storage via SSH
 * Add to your *cron-like* program of choice to run once daily.   
    
  ## Config
+
  * **REMOTE_USER** - The username to ssh in as
  * **REMOTE_HOST** - The remote hostname to use.
  * **REMOTE_IP** - If this is not empty, it will override the given **REMOTE_HOST**
  * **REMOTE_RSYNC** - Typically */usr/bin/rsync*
+ * **SCP=** - scp binary, default set to */system/bin/scp*
+ * **SSH=** - ssh binary, default set to */system/bin/ssh*
  * **BUDIR** - The backup directory relative to /storage/8899-1234 or /sdcard if no external SD support
- * **INIT_HOST** - The inital host to get the *busybox* and *rsync* binaries if not found in **BUDIR** (May not be used it setup)
+ * **POST_SCRIPT** - A script to run at the end of the backup, it is given two arguments: $REMOTE_PATH `date '+%m-%d-%Y'`
+
